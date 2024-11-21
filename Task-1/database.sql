@@ -1,0 +1,16 @@
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    plu VARCHAR(50) UNIQUE NOT NULL,
+    product_name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE shops (
+    id SERIAL PRIMARY KEY
+);
+
+CREATE TABLE inventory (
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    shop_id INTEGER NOT NULL REFERENCES shops(id) ON DELETE CASCADE,
+    shelf_quantity INTEGER NOT NULL DEFAULT 0,
+    order_quantity INTEGER NOT NULL DEFAULT 0
+);
