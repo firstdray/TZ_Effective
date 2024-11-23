@@ -1,6 +1,6 @@
-const Router = require('express');
+import {Router} from 'express';
 const router = new Router();
-const ProductController = require('../controller/products.controller');
+import ProductController from '../controller/products.controller.js';
 
 router.post("/shops", ProductController.createShop)
 
@@ -14,4 +14,4 @@ router.get("/inventory", ProductController.findInventoryByFilters);
 
 
 
-module.exports = router;
+export default router;

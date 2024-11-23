@@ -1,7 +1,8 @@
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
     plu VARCHAR(50) UNIQUE NOT NULL,
-    product_name VARCHAR(255) NOT NULL
+    product_name VARCHAR(255) NOT NULL,
+    shop_id INTEGER NOT NULL REFERENCES shops(id) ON DELETE CASCADE
 );
 
 CREATE TABLE shops (
@@ -13,4 +14,13 @@ CREATE TABLE inventory (
     shop_id INTEGER NOT NULL REFERENCES shops(id) ON DELETE CASCADE,
     shelf_quantity INTEGER NOT NULL DEFAULT 0,
     order_quantity INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE product_actions (
+    id SERIAL PRIMARY KEY,
+    shop_id INTEGER NOT NULL REFERENCES shops(id) ON DELETE CASCADE,
+    plu VARCHAR(50) NOT NULL REFERENCES products(plu) ON DELETE CASCADE,
+    action VARCHAR(100) NOT NULL,
+    quantity_change INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

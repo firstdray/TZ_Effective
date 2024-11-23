@@ -1,6 +1,4 @@
-const db = require("../db");
-const req = require("express/lib/request");
-const res = require("express/lib/response");
+import db from "../db.js"
 
 class ProductController {
 
@@ -17,15 +15,29 @@ class ProductController {
     }
 
     async createProduct(req, res) {
-        const {plu, name} = req.body;
+        const {plu, name, shop_id} = req.body;
+        const client = await db.connect();
         try {
-            const result = await db.query("INSERT INTO products (plu, product_name) values ($1, $2) RETURNING id", [plu, name]);
+            await client.query('BEGIN')
+
+            const result = await db.query("INSERT INTO products (plu, product_name, shop_id) values ($1, $2, $3) RETURNING id", [plu, name, shop_id]);
+
+            const productId = result.rows[0].id;
+
+            await client.query("INSERT INTO product_actions (shop_id, plu, action, quantity_change) VALUES ($1, $2, $3, $4)",
+                [shop_id, plu, "Создание", 0])
+
+            await client.query('COMMIT')
+
             res.status(201).json(result.rows[0]);
         } catch (err) {
+            await client.query('ROLLBACK')
             console.error(err);
             res.status(500).json({
                 error: "Ошибка при создании товара",
             })
+        } finally {
+            client.release();
         }
     }
 
@@ -105,7 +117,7 @@ class ProductController {
     }
 
     async findInventoryByFilters(req, res) {
-        const {plu, shop_id, shelf_quantity_min, shelf_quantity_max, order_quantity_min, order_quantity_max} = req.body;
+        const {plu, shop_id, shelf_quantity_min, shelf_quantity_max, order_quantity_min, order_quantity_max} = req.query;
         let query = `SELECT i.*, p.plu FROM inventory i JOIN products p ON i.product_id = p.id WHERE TRUE`;
 
         const params = []
@@ -116,7 +128,7 @@ class ProductController {
         }
 
         if (shop_id) {
-            query += ` AND shop_id = $${params.length + 1}`;
+            query += ` AND p.shop_id = $${params.length + 1}`;
             params.push(shop_id);
         }
 
@@ -142,4 +154,4 @@ class ProductController {
 }
 
 
-module.exports = new ProductController();
+export default new ProductController();
