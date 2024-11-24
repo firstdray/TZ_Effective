@@ -2,5 +2,7 @@ import { UsersService } from './users.service';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
-    resetProblems(): unknown;
+    resetProblems(): Promise<{
+        message: string;
+    }>;
 }
