@@ -1,0 +1,25 @@
+services:
+  main:
+    container_name: main
+    build:
+      context: .
+    volumes:
+      - .:/cmd
+      - /cmd/node_modules
+    ports:
+      - 5000:5000
+      - 4000:4000
+    command: npm run start:dev
+    depends_on:
+      - postgres
+    restart: always
+  postgres:
+    container_name: postgres
+    image: postgres:17
+    env_file:
+      - .env
+    environment:
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    restart: always
